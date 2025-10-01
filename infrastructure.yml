@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "bucket benchinel"
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: "products"
+    Default: "bench-ritsa-bucket"
+
+Resources:
+  ## ======================================================
+  ## S3 Bucket
+  ## ======================================================
+  BenchBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: Project
+          Value: scrapper
+        - Key: Environment
+          Value: Production
+
+  ## ======================================================
+  ## (Opcional) Bucket Policy — Si necesitas acceso público de lectura
+  ## ======================================================
+  # ProductsBucketPolicy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     Bucket: !Ref ProductsBucket
+  #     PolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Sid: PublicReadGetObject
+  #           Effect: Allow
+  #           Principal: "*"
+  #           Action:
+  #             - "s3:GetObject"
+  #           Resource: !Sub "${ProductsBucket.Arn}/*"
+
+Outputs:
+  BucketName:
+    Description: "Nombre del bucket creado"
+    Value: !Ref BenchBucket
+
+  BucketArn:
+    Description: "ARN del bucket S3"
+    Value: !GetAtt BenchBucket.Arn
+
+  BucketUrl:
+    Description: "URL del bucket en consola AWS"
+    Value: !Sub "https://s3.console.aws.amazon.com/s3/buckets/${BenchBucket}"
